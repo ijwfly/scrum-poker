@@ -1,82 +1,73 @@
 package session
 
 import (
-	"scrum-poker/internal/app/user"
+	"errors"
 )
 
-type EstimateOption string
-
-func defaultEstimateOptions() []EstimateOption {
-	return []EstimateOption{
-		"?",
-		"0.5",
-		"1",
-		"2",
-		"3",
-		"5",
-		"8",
-		"13",
-	}
-}
-
-func NewSession(sessionId string) Session {
-	var session Session
-	session.SessionId = sessionId
-	session.SessionEstimateOptions = defaultEstimateOptions()
-	session.Users = make(map[int64]UserState)
-	session.ShowEstimates = false
-	return session
-}
-
-func UserJoinSession(session Session, user user.User) Session {
-	if value, ok := session.Users[user.UserId]; !ok {
-		var userState UserState
-		userState.UserName = user.UserName
+func UserJoinSession(session Session, user User) (Session, UserState) {
+	var userState UserState
+	if value, ok := session.Users[user.Token]; !ok {
+		userState.Name = user.Name
 		userState.Estimate = nil
 		userState.Presence = Online
-		session.Users[user.UserId] = userState
+		session.Users[user.Token] = userState
 	} else {
 		value.Presence = Online
-		session.Users[user.UserId] = value
+		session.Users[user.Token] = value
+		userState = value
 	}
 
-	return session
+	return session, userState
 }
 
-func UserLeaveSession(session Session, user user.User) Session {
-	if value, ok := session.Users[user.UserId]; ok {
+func UserLeaveSession(session Session, user User) Session {
+	if value, ok := session.Users[user.Token]; ok {
 		value.Presence = Offline
-		session.Users[user.UserId] = value
+		session.Users[user.Token] = value
 	}
 
 	return session
 }
 
-func UserSetEstimate(session Session, user user.User, estimate EstimateOption) Session {
+func UserSetEstimate(session Session, user User, estimate EstimateOption) (Session, error) {
+	estimateFound := false
 	for _, option := range session.SessionEstimateOptions {
 		if option == estimate {
-			if value, ok := session.Users[user.UserId]; ok {
-				value.Estimate = &estimate
-				session.Users[user.UserId] = value
-			}
+			estimateFound = true
+			break
+		}
+	}
+	if !estimateFound {
+		return session, errors.New("estimate option not found")
+	}
+
+	if value, ok := session.Users[user.Token]; ok {
+		if value.Token != user.Token {
+
+		}
+		value.Estimate = &estimate
+		session.Users[user.Token] = value
+	}
+
+	return session, nil
+}
+
+func ResetEstimates(session Session) Session {
+	for k, userObj := range session.Users {
+		if userObj.Presence == Online {
+			userObj.Estimate = nil
+			session.Users[k] = userObj
+		} else {
+			delete(session.Users, k)
 		}
 	}
 
-	return session
-}
-
-func SessionResetEstimates(session Session) Session {
-	for k, userObj := range session.Users {
-		userObj.Estimate = nil
-		session.Users[k] = userObj
-	}
-
 	session.ShowEstimates = false
 
 	return session
 }
 
-func SessionShowEstimatesToggle(session Session) Session {
+func ShowEstimatesToggle(session Session) Session {
 	session.ShowEstimates = !session.ShowEstimates
 	return session
 }
