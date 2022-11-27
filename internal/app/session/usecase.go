@@ -1,15 +1,28 @@
 package session
 
 import (
-	"scrum-poker/internal/app/room"
 	"scrum-poker/internal/app/user"
 )
 
-func NewSession(sessionId int64, room room.Room) Session {
+type EstimateOption string
+
+func defaultEstimateOptions() []EstimateOption {
+	return []EstimateOption{
+		"?",
+		"0.5",
+		"1",
+		"2",
+		"3",
+		"5",
+		"8",
+		"13",
+	}
+}
+
+func NewSession(sessionId string) Session {
 	var session Session
 	session.SessionId = sessionId
-	session.RoomId = room.RoomId
-	session.SessionEstimateOptions = room.EstimateOptions
+	session.SessionEstimateOptions = defaultEstimateOptions()
 	session.Users = make(map[int64]UserState)
 	session.ShowEstimates = false
 	return session
@@ -39,7 +52,7 @@ func UserLeaveSession(session Session, user user.User) Session {
 	return session
 }
 
-func UserSetEstimate(session Session, user user.User, estimate room.EstimateOption) Session {
+func UserSetEstimate(session Session, user user.User, estimate EstimateOption) Session {
 	for _, option := range session.SessionEstimateOptions {
 		if option == estimate {
 			if value, ok := session.Users[user.UserId]; ok {

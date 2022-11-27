@@ -1,7 +1,6 @@
 package session
 
 import (
-	room2 "scrum-poker/internal/app/room"
 	"scrum-poker/internal/app/user"
 	"testing"
 
@@ -14,19 +13,7 @@ func TestSession_Scenario(t *testing.T) {
 	user2 := user.NewUser(2, "user_2")
 	user3 := user.NewUser(3, "user_3")
 
-	roomObj := room2.NewRoom(1, "room_1")
-
-	roomObj.EstimateOptions = []room2.EstimateOption{
-		"?",
-		"1",
-		"2",
-		"3",
-		"5",
-		"8",
-		"13",
-	}
-
-	session := NewSession(1, roomObj)
+	session := NewSession("unbeleivable-monkey")
 
 	// Act & Assert
 	session = UserJoinSession(session, user1)
@@ -37,9 +24,9 @@ func TestSession_Scenario(t *testing.T) {
 	session = UserSetEstimate(session, user1, "1")
 	session = UserSetEstimate(session, user2, "2")
 	session = UserSetEstimate(session, user3, "18")
-	require.Equal(t, room2.EstimateOption("1"), *session.Users[1].Estimate)
-	require.Equal(t, room2.EstimateOption("2"), *session.Users[2].Estimate)
-	require.Equal(t, (*room2.EstimateOption)(nil), session.Users[3].Estimate)
+	require.Equal(t, EstimateOption("1"), *session.Users[1].Estimate)
+	require.Equal(t, EstimateOption("2"), *session.Users[2].Estimate)
+	require.Equal(t, (*EstimateOption)(nil), session.Users[3].Estimate)
 
 	session = UserLeaveSession(session, user1)
 	require.Equal(t, Offline, session.Users[1].Presence)
@@ -54,8 +41,8 @@ func TestSession_Scenario(t *testing.T) {
 	require.Equal(t, false, session.ShowEstimates)
 
 	session = SessionResetEstimates(session)
-	require.Equal(t, (*room2.EstimateOption)(nil), session.Users[1].Estimate)
-	require.Equal(t, (*room2.EstimateOption)(nil), session.Users[2].Estimate)
-	require.Equal(t, (*room2.EstimateOption)(nil), session.Users[3].Estimate)
+	require.Equal(t, (*EstimateOption)(nil), session.Users[1].Estimate)
+	require.Equal(t, (*EstimateOption)(nil), session.Users[2].Estimate)
+	require.Equal(t, (*EstimateOption)(nil), session.Users[3].Estimate)
 	require.Equal(t, false, session.ShowEstimates)
 }

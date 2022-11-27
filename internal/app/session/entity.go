@@ -1,9 +1,5 @@
 package session
 
-import (
-	"scrum-poker/internal/app/room"
-)
-
 type OnlineState string
 
 const (
@@ -13,14 +9,13 @@ const (
 
 type UserState struct {
 	UserName string
-	Estimate *room.EstimateOption
+	Estimate *EstimateOption
 	Presence OnlineState
 }
 
 type Session struct {
-	SessionId              int64
-	RoomId                 int64
-	SessionEstimateOptions []room.EstimateOption
+	SessionId              string
+	SessionEstimateOptions []EstimateOption
 	ShowEstimates          bool
 	Users                  map[int64]UserState
 }
