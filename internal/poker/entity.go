@@ -14,7 +14,7 @@ const TOKEN_LENGTH = 32
 
 type User struct {
 	Name  string `json:"name"`
-	Token string `json:"token"`
+	Token string `json:"token,omitempty"`
 }
 
 func generateToken() string {

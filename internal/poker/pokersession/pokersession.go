@@ -1,34 +1,34 @@
-package storagecontroller
+package pokersession
 
 import (
-	"scrum-poker/internal/app/poker"
+	"scrum-poker/internal/poker"
 
 	"sync"
 )
 
-type SessionWrapper struct {
+type PokerSessionWrapper struct {
 	mu sync.Mutex
 	poker.Session
 }
 
-func NewSessionWrapper(sessionId string) *SessionWrapper {
-	var sessionMutex SessionWrapper
+func NewSessionWrapper(sessionId string) *PokerSessionWrapper {
+	var sessionMutex PokerSessionWrapper
 	sessionMutex.Session = poker.NewSession(sessionId)
 	return &sessionMutex
 }
 
-type SessionStorageController struct {
+type PokerSession struct {
 	mu      sync.Mutex
-	storage map[string]*SessionWrapper
+	storage map[string]*PokerSessionWrapper
 }
 
-func NewSessionStorageController() *SessionStorageController {
-	var sessionStorageController SessionStorageController
-	sessionStorageController.storage = make(map[string]*SessionWrapper)
+func NewMemPokerSession() *PokerSession {
+	var sessionStorageController PokerSession
+	sessionStorageController.storage = make(map[string]*PokerSessionWrapper)
 	return &sessionStorageController
 }
 
-func (s *SessionStorageController) getOrCreateSessionWrapper(sessionId string) *SessionWrapper {
+func (s *PokerSession) getOrCreateSessionWrapper(sessionId string) *PokerSessionWrapper {
 	if sessionWrapper, ok := s.storage[sessionId]; ok {
 		return sessionWrapper
 	} else {
@@ -40,11 +40,11 @@ func (s *SessionStorageController) getOrCreateSessionWrapper(sessionId string) *
 	}
 }
 
-func (s *SessionStorageController) GetOrCreateSession(sessionId string) poker.Session {
+func (s *PokerSession) GetOrCreateSession(sessionId string) poker.Session {
 	return s.getOrCreateSessionWrapper(sessionId).Session
 }
 
-func (s *SessionStorageController) UserJoinSession(user poker.User, sessionId string) (poker.Session, error) {
+func (s *PokerSession) UserJoinSession(user poker.User, sessionId string) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()
@@ -56,7 +56,7 @@ func (s *SessionStorageController) UserJoinSession(user poker.User, sessionId st
 	return sessionObj, nil
 }
 
-func (s *SessionStorageController) UserLeaveSession(user poker.User, sessionId string) (poker.Session, error) {
+func (s *PokerSession) UserLeaveSession(user poker.User, sessionId string) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()
@@ -68,7 +68,7 @@ func (s *SessionStorageController) UserLeaveSession(user poker.User, sessionId s
 	return sessionObj, nil
 }
 
-func (s *SessionStorageController) UserSetEstimate(user poker.User, sessionId string, estimate poker.EstimateOption) (poker.Session, error) {
+func (s *PokerSession) UserSetEstimate(user poker.User, sessionId string, estimate poker.EstimateOption) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()
@@ -83,7 +83,7 @@ func (s *SessionStorageController) UserSetEstimate(user poker.User, sessionId st
 	return sessionObj, nil
 }
 
-func (s *SessionStorageController) SessionResetEstimates(sessionId string) (poker.Session, error) {
+func (s *PokerSession) ResetEstimates(sessionId string) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()
@@ -95,7 +95,7 @@ func (s *SessionStorageController) SessionResetEstimates(sessionId string) (poke
 	return sessionObj, nil
 }
 
-func (s *SessionStorageController) SessionShowEstimatesToggle(sessionId string) (poker.Session, error) {
+func (s *PokerSession) ShowEstimatesToggle(sessionId string) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()

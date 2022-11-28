@@ -1,13 +1,13 @@
-package storagecontroller
+package pokersession
 
 import (
 	"github.com/stretchr/testify/require"
-	"scrum-poker/internal/app/poker"
+	"scrum-poker/internal/poker"
 	"testing"
 )
 
 func TestSessionStorageController_Scenario(t *testing.T) {
-	sessionStorageController := NewSessionStorageController()
+	sessionStorageController := NewMemPokerSession()
 	sessionName := "some-session"
 	user1 := poker.NewUser("user1")
 	user2 := poker.NewUser("user2")
@@ -31,14 +31,14 @@ func TestSessionStorageController_Scenario(t *testing.T) {
 	sessionObj, _ = sessionStorageController.UserJoinSession(user1, sessionName)
 	require.Equal(t, poker.Online, sessionObj.Users[user1.Token].Presence)
 
-	sessionObj, _ = sessionStorageController.SessionShowEstimatesToggle(sessionName)
+	sessionObj, _ = sessionStorageController.ShowEstimatesToggle(sessionName)
 	require.Equal(t, true, sessionObj.ShowEstimates)
 
-	sessionObj, _ = sessionStorageController.SessionShowEstimatesToggle(sessionName)
+	sessionObj, _ = sessionStorageController.ShowEstimatesToggle(sessionName)
 	require.Equal(t, false, sessionObj.ShowEstimates)
 
 	sessionObj, _ = sessionStorageController.UserLeaveSession(user1, sessionName)
-	sessionObj, _ = sessionStorageController.SessionResetEstimates(sessionName)
+	sessionObj, _ = sessionStorageController.ResetEstimates(sessionName)
 	require.Equal(t, 2, len(sessionObj.Users))
 	require.Equal(t, (*poker.EstimateOption)(nil), sessionObj.Users[user2.Token].Estimate)
 	require.Equal(t, (*poker.EstimateOption)(nil), sessionObj.Users[user3.Token].Estimate)
