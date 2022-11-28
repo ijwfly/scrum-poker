@@ -1,4 +1,4 @@
-package session
+package poker
 
 type StorageController interface {
 	GetOrCreateSession(sessionId string) Session

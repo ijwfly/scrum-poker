@@ -1,19 +1,19 @@
 package storagecontroller
 
 import (
-	"scrum-poker/internal/app/session"
+	"scrum-poker/internal/app/poker"
 
 	"sync"
 )
 
 type SessionWrapper struct {
 	mu sync.Mutex
-	session.Session
+	poker.Session
 }
 
 func NewSessionWrapper(sessionId string) *SessionWrapper {
 	var sessionMutex SessionWrapper
-	sessionMutex.Session = session.NewSession(sessionId)
+	sessionMutex.Session = poker.NewSession(sessionId)
 	return &sessionMutex
 }
 
@@ -40,41 +40,41 @@ func (s *SessionStorageController) getOrCreateSessionWrapper(sessionId string) *
 	}
 }
 
-func (s *SessionStorageController) GetOrCreateSession(sessionId string) session.Session {
+func (s *SessionStorageController) GetOrCreateSession(sessionId string) poker.Session {
 	return s.getOrCreateSessionWrapper(sessionId).Session
 }
 
-func (s *SessionStorageController) UserJoinSession(user session.User, sessionId string) (session.Session, error) {
+func (s *SessionStorageController) UserJoinSession(user poker.User, sessionId string) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()
 	defer sessionWrapper.mu.Unlock()
 
-	sessionObj, _ := session.UserJoinSession(sessionWrapper.Session, user)
+	sessionObj, _ := poker.UserJoinSession(sessionWrapper.Session, user)
 	sessionWrapper.Session = sessionObj
 
 	return sessionObj, nil
 }
 
-func (s *SessionStorageController) UserLeaveSession(user session.User, sessionId string) (session.Session, error) {
+func (s *SessionStorageController) UserLeaveSession(user poker.User, sessionId string) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()
 	defer sessionWrapper.mu.Unlock()
 
-	sessionObj := session.UserLeaveSession(sessionWrapper.Session, user)
+	sessionObj := poker.UserLeaveSession(sessionWrapper.Session, user)
 	sessionWrapper.Session = sessionObj
 
 	return sessionObj, nil
 }
 
-func (s *SessionStorageController) UserSetEstimate(user session.User, sessionId string, estimate session.EstimateOption) (session.Session, error) {
+func (s *SessionStorageController) UserSetEstimate(user poker.User, sessionId string, estimate poker.EstimateOption) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()
 	defer sessionWrapper.mu.Unlock()
 
-	sessionObj, err := session.UserSetEstimate(sessionWrapper.Session, user, estimate)
+	sessionObj, err := poker.UserSetEstimate(sessionWrapper.Session, user, estimate)
 	if err != nil {
 		return sessionObj, err
 	}
@@ -83,25 +83,25 @@ func (s *SessionStorageController) UserSetEstimate(user session.User, sessionId 
 	return sessionObj, nil
 }
 
-func (s *SessionStorageController) SessionResetEstimates(sessionId string) (session.Session, error) {
+func (s *SessionStorageController) SessionResetEstimates(sessionId string) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()
 	defer sessionWrapper.mu.Unlock()
 
-	sessionObj := session.ResetEstimates(sessionWrapper.Session)
+	sessionObj := poker.ResetEstimates(sessionWrapper.Session)
 	sessionWrapper.Session = sessionObj
 
 	return sessionObj, nil
 }
 
-func (s *SessionStorageController) SessionShowEstimatesToggle(sessionId string) (session.Session, error) {
+func (s *SessionStorageController) SessionShowEstimatesToggle(sessionId string) (poker.Session, error) {
 	sessionWrapper := s.getOrCreateSessionWrapper(sessionId)
 
 	sessionWrapper.mu.Lock()
 	defer sessionWrapper.mu.Unlock()
 
-	sessionObj := session.ShowEstimatesToggle(sessionWrapper.Session)
+	sessionObj := poker.ShowEstimatesToggle(sessionWrapper.Session)
 	sessionWrapper.Session = sessionObj
 
 	return sessionObj, nil
