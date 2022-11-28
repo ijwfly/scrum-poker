@@ -17,8 +17,8 @@ type User struct {
 	Token string `json:"token,omitempty"`
 }
 
-func generateToken() string {
-	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+func GenerateToken() string {
+	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678")
 	b := make([]rune, TOKEN_LENGTH)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
@@ -29,7 +29,7 @@ func generateToken() string {
 func NewUser(name string) User {
 	var user User
 	user.Name = name
-	user.Token = generateToken()
+	user.Token = GenerateToken()
 	return user
 }
 

@@ -30,7 +30,7 @@ func dummy(c *gin.Context) {
 
 func InitRoutes(ginEngine *gin.Engine, app *app.App) *gin.Engine {
 	api := ginEngine.Group("/api")
-	api.GET("/ping", New(42).Handle)
+	api.GET("/get_token", handlers.GetTokenHandler)
 	api.GET("/session/:sessionId", handlers.NewGetSessionHandler(app).Handle)
 	return ginEngine
 }
